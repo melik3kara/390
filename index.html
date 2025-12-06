@@ -637,8 +637,58 @@
             document.getElementById('progress-bar').style.width = progress + '%';
         }
 
+        // Google Sheets API endpoint
+        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxHpr9xHKrjpnTG5dK0XXZnkiMfPvn0Iw3pNzof6OzqStar-D_Oq9i6RdDgDddnLPQ/exec';
+
+        // Get Prolific ID from URL parameters
+        function getProlificID() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('PROLIFIC_PID') || 'unknown';
+        }
+
+        // Send data to Google Sheets
+        async function sendToGoogleSheets(data) {
+            try {
+                const response = await fetch(GOOGLE_SHEETS_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Required for Google Apps Script
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                console.log('Data sent to Google Sheets successfully');
+                return true;
+            } catch (error) {
+                console.error('Error sending data to Google Sheets:', error);
+                return false;
+            }
+        }
+
+        // Flatten responses for spreadsheet
+        function flattenResponses() {
+            const flat = {
+                timestamp: new Date().toISOString(),
+                prolific_id: getProlificID(),
+                age: responses.demographics.age || '',
+                gender: responses.demographics.gender || '',
+                country: responses.demographics.country || ''
+            };
+
+            // Add each trial's answers
+            responses.trials.forEach((trial, index) => {
+                const pairNum = index + 1;
+                flat[`pair${pairNum}_id`] = trial.pairId;
+                Object.keys(trial.answers).forEach(questionId => {
+                    flat[`pair${pairNum}_${questionId}`] = trial.answers[questionId];
+                });
+            });
+
+            return flat;
+        }
+
         // Finish study
-        function finishStudy() {
+        async function finishStudy() {
             showScreen('screen-debrief');
             
             // Log responses to console
@@ -646,9 +696,14 @@
             console.log(JSON.stringify(responses, null, 2));
             console.log('======================');
             
-            // You can also save to localStorage for later retrieval
+            // Save to localStorage as backup
             localStorage.setItem('studyResponses', JSON.stringify(responses));
             localStorage.setItem('studyCompletionTime', new Date().toISOString());
+
+            // Send to Google Sheets
+            const flatData = flattenResponses();
+            console.log('Sending to Google Sheets:', flatData);
+            await sendToGoogleSheets(flatData);
         }
 
         // Initialize
