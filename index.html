@@ -204,6 +204,13 @@
             background-color: #000;
         }
 
+        /* Hide volume/mute controls in video player */
+        video::-webkit-media-controls-mute-button,
+        video::-webkit-media-controls-volume-slider,
+        video::-webkit-media-controls-volume-control-container {
+            display: none !important;
+        }
+
         .video-controls {
             text-align: center;
             margin: 15px 0;
