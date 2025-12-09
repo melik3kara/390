@@ -423,50 +423,14 @@
                     <li><strong>You are not currently taking any courses from the project supervisor, Prof. Dr. Uğur Güdükbay</strong></li>
                 </ul>
                 <p style="margin-top: 15px;"><strong>By clicking "I Agree, Start Study" below, you confirm that you have read and understood this information and consent to participate in this research.</strong></p>
-                <li><strong>Supervisor: Prof. Dr. Uğur Güdükbay</strong></li>
             </div>
 
             <div class="button-container">
-                <button id="btn-consent" onclick="showScreen('screen-email')">I Agree, Start Study</button>
+                <button id="btn-consent" onclick="startStudy()">I Agree, Start Study</button>
             </div>
         </div>
 
-        <!-- Screen 2: Email Entry -->
-        <div id="screen-email" class="screen">
-            <h1>Enter Your Email</h1>
-            
-            <div class="required-note">
-                <strong>Important:</strong> Your email is required to:
-                <ul style="margin-top: 10px; margin-left: 20px;">
-                    <li>Allow you to continue if you leave and come back</li>
-                    <li>Prevent duplicate submissions</li>
-                </ul>
-                Your email will only be used for this study and will not be shared.
-            </div>
-
-            <div id="returning-user-box" class="returning-user-message" style="display: none;">
-                <h3>Welcome back! 👋</h3>
-                <p>You have a saved session. Click "Continue" to resume from where you left off.</p>
-            </div>
-
-            <div id="already-completed-box" class="already-completed-message" style="display: none;">
-                <h3>Already Completed ✓</h3>
-                <p>You have already completed this study. Thank you for your participation!</p>
-                <p>If you believe this is an error, please contact the researcher.</p>
-            </div>
-
-            <div class="form-group">
-                <label for="email">Email Address: <span style="color: #e74c3c;">*</span></label>
-                <input type="email" id="email" placeholder="your.email@example.com" required>
-                <div id="email-error" class="error-message">Please enter a valid email address.</div>
-            </div>
-
-            <div class="button-container">
-                <button id="btn-check-email" onclick="checkEmail()">Continue</button>
-            </div>
-        </div>
-
-        <!-- Screen 3: Demographics -->
+        <!-- Screen 2: Demographics -->
         <div id="screen-demographics" class="screen">
             <h1>Participant Information</h1>
             <p class="optional-note">The following questions are optional and help us understand our participant demographics. You may leave any or all fields blank if you prefer.</p>
@@ -586,7 +550,12 @@
                 <p>Thank you for participating in this research study!</p>
                 <p style="margin-top: 20px;">Your responses have been recorded and will be used for research on how facial expressions and head positions affect personality perception.</p>
                 <p style="margin-top: 20px;">Your contribution to this research is greatly appreciated and will help advance our understanding of nonverbal communication and social perception.</p>
-                <p style="margin-top: 30px; font-size: 0.95em; color: #666;">You may now close this window.</p>
+                <p style="margin-top: 30px; font-size: 1em; color: #28a745; font-weight: bold;">
+                    ⏳ You will be automatically redirected to Prolific in a few seconds...
+                </p>
+                <p style="margin-top: 15px; font-size: 0.9em; color: #666;">
+                    If you are not redirected, <a href="https://app.prolific.com/submissions/complete?cc=CMQR2BIO" style="color: #007bff;">click here</a>.
+                </p>
             </div>
         </div>
     </div>
@@ -705,12 +674,10 @@
         let currentPairIndex = 0;
         let currentQuestionIndex = 0;
         let currentPairAnswers = {};
-        let userEmail = '';
         let isReturningUser = false;
 
         // Data storage
         const responses = {
-            email: '',
             prolificId: '',
             demographics: {},
             trials: [],
@@ -721,23 +688,18 @@
         // Get Prolific ID from URL parameters
         function getProlificID() {
             const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('PROLIFIC_PID') || 'unknown';
+            return urlParams.get('PROLIFIC_PID') || 'participant_' + Date.now();
         }
 
-        // Generate session key from email
-        function getSessionKey(email) {
-            return 'study_session_' + email.toLowerCase().trim();
-        }
-
-        // Check if email already completed study
-        function getCompletedKey(email) {
-            return 'study_completed_' + email.toLowerCase().trim();
+        // Generate session key from Prolific ID
+        function getSessionKey(odId) {
+            return 'study_session_' + odId;
         }
 
         // Save session to localStorage
         function saveSession() {
+            const odId = responses.prolificId;
             const sessionData = {
-                email: userEmail,
                 prolificId: responses.prolificId,
                 demographics: responses.demographics,
                 demographicsSkipped: responses.demographicsSkipped || false,
@@ -748,68 +710,31 @@
                 currentPairAnswers: currentPairAnswers,
                 timestamp: new Date().toISOString()
             };
-            localStorage.setItem(getSessionKey(userEmail), JSON.stringify(sessionData));
+            localStorage.setItem(getSessionKey(odId), JSON.stringify(sessionData));
         }
 
         // Load session from localStorage
-        function loadSession(email) {
-            const sessionData = localStorage.getItem(getSessionKey(email));
+        function loadSession(odId) {
+            const sessionData = localStorage.getItem(getSessionKey(odId));
             if (sessionData) {
                 return JSON.parse(sessionData);
             }
             return null;
         }
 
-        // Mark study as completed
-        function markCompleted(email) {
-            localStorage.setItem(getCompletedKey(email), 'true');
-        }
-
-        // Check if study was completed
-        function isStudyCompleted(email) {
-            return localStorage.getItem(getCompletedKey(email)) === 'true';
-        }
-
-        // Validate email
-        function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
-        }
-
-        // Check email and handle returning users
-        function checkEmail() {
-            const emailInput = document.getElementById('email');
-            const email = emailInput.value.trim().toLowerCase();
-            
-            if (!validateEmail(email)) {
-                emailInput.classList.add('error');
-                document.getElementById('email-error').style.display = 'block';
-                return;
-            }
-
-            emailInput.classList.remove('error');
-            document.getElementById('email-error').style.display = 'none';
-            userEmail = email;
-            responses.email = email;
+        // Start study after consent
+        function startStudy() {
             responses.prolificId = getProlificID();
 
-            // Check if already completed
-            if (isStudyCompleted(email)) {
-                document.getElementById('already-completed-box').style.display = 'block';
-                document.getElementById('returning-user-box').style.display = 'none';
-                document.getElementById('btn-check-email').disabled = true;
-                return;
-            }
-
             // Check for existing session
-            const existingSession = loadSession(email);
+            const existingSession = loadSession(responses.prolificId);
             if (existingSession && (existingSession.trials.length > 0 || existingSession.demographicsSkipped)) {
                 // Restore session
                 responses.demographics = existingSession.demographics;
                 responses.demographicsSkipped = existingSession.demographicsSkipped || false;
                 responses.trials = existingSession.trials;
                 
-                // Set currentPairIndex to the next incomplete pair (trials.length = completed pairs)
+                // Set currentPairIndex to the next incomplete pair
                 currentPairIndex = existingSession.trials.length;
                 currentQuestionIndex = 0;
                 currentPairAnswers = {};
@@ -1146,7 +1071,6 @@
         function flattenResponses() {
             const flat = {
                 timestamp: new Date().toISOString(),
-                email: responses.email,
                 prolific_id: responses.prolificId,
                 age: responses.demographics.age || '',
                 gender: responses.demographics.gender || '',
@@ -1171,12 +1095,10 @@
         async function finishStudy() {
             showScreen('screen-debrief');
             
-            // Mark as completed
-            markCompleted(userEmail);
             responses.completed = true;
             
             // Clear session (no longer needed)
-            localStorage.removeItem(getSessionKey(userEmail));
+            localStorage.removeItem(getSessionKey(responses.prolificId));
             
             // Log responses
             console.log('=== STUDY RESPONSES ===');
@@ -1187,6 +1109,11 @@
             const flatData = flattenResponses();
             console.log('Sending to Google Sheets:', flatData);
             await sendToGoogleSheets(flatData);
+            
+            // Redirect to Prolific completion URL after 3 seconds
+            setTimeout(() => {
+                window.location.href = 'https://app.prolific.com/submissions/complete?cc=CMQR2BIO';
+            }, 3000);
         }
 
         // Initialize
