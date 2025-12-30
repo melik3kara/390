@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -257,68 +257,73 @@
         <div class="floating-shape shape-three" aria-hidden="true"></div>
 
         <header>
-            <div class="tag">CS-390 <span>Sunum Dosyasi</span></div>
+            <div class="tag">CS-390 <span>Presentation File</span></div>
             <h1>Personality Perception on Neural Rendered Videos</h1>
             <p class="subtitle">
-                Merhaba! Yarin yapacagim sunumun PDF dosyasini buradan indirebilirsiniz.
-                Proje, farkli yuz ifadeleri ve bas pozisyonlarinin kisilik algisini nasil etkiledigini inceliyor.
+                Hello! You can download the PDF of my upcoming presentation here.
+                The project examines how different facial expressions and head poses influence personality perception.
             </p>
             <div class="hero-actions">
                 <a class="button primary" href="CS-390%20Melike%20Kara%20(1).pdf" download>
-                    PDF indir
+                    Download PDF
                 </a>
                 <a class="button secondary" href="CS-390%20Melike%20Kara%20(1).pdf" target="_blank" rel="noopener">
-                    PDF goruntule
+                    View PDF
                 </a>
                 <a class="button secondary" href="https://github.com/melik3kara/Personaliy-Perception-on-Neural-Rendered-Videos" target="_blank" rel="noopener">
-                    GitHub proje
+                    GitHub project
                 </a>
             </div>
         </header>
 
         <main>
             <section class="card">
-                <h2>Sunum ozeti</h2>
+                <h2>Presentation overview</h2>
                 <p>
-                    Bu calisma, sinir aglari ile olusturulan konusma videolarinda kisilik ozelliklerinin
-                    algilanmasini arastiriyor. Katilimcilar, farkli duygu ve bas pozisyonlari arasinda
-                    karsilastirmalar yaparak algisal puanlar veriyor.
+                    This study explores how personality traits are perceived in neural-rendered talking videos.
+                    Participants compare pairs of videos that differ in expression and head pose, then provide
+                    comparative judgments.
                 </p>
                 <ul class="list">
-                    <li>Veri: eslenik video ciftleri ve kontrol edilen ifade farklari</li>
-                    <li>Olcum: bes buyuk kisilik boyutu + dogallik algisi</li>
-                    <li>Yontem: karsilastirmali karar sorulari</li>
+                    <li>Data: paired videos with controlled expression differences</li>
+                    <li>Measures: Big Five traits + perceived naturalness</li>
+                    <li>Method: comparative judgment questions</li>
                 </ul>
             </section>
 
             <section class="card">
-                <h2>Sunum dosyasi</h2>
+                <h2>Presentation file</h2>
                 <div class="download-box">
                     <strong>CS-390 Melike Kara (1).pdf</strong>
                     <div class="download-meta">
                         <span>Format: PDF</span>
-                        <span>Kaynak: GitHub</span>
-                        <span>Durum: Indirmeye hazir</span>
+                        <span>Source: GitHub</span>
+                        <span>Status: Ready to download</span>
                     </div>
                     <div class="hero-actions">
                         <a class="button primary" href="CS-390%20Melike%20Kara%20(1).pdf" download>
-                            Tek tikla indir
+                            Download now
                         </a>
                         <a class="button secondary" href="CS-390%20Melike%20Kara%20(1).pdf" target="_blank" rel="noopener">
-                            Yeni sekmede ac
+                            Open in new tab
                         </a>
+                    </div>
+                    <div class="hero-actions">
+                        <button class="button secondary" type="button" id="continue-study">
+                            Continue to user study
+                        </button>
                     </div>
                 </div>
             </section>
 
             <section class="card">
-                <h2>Sunum akisi</h2>
+                <h2>Presentation flow</h2>
                 <ul class="list">
-                    <li>Motivasyon ve problem tanimi</li>
-                    <li>Deney tasarimi ve stimuli seti</li>
-                    <li>Katilimci gorevi ve sorular</li>
-                    <li>On bulgular ve tartisma</li>
-                    <li>Gelecek calismalar</li>
+                    <li>Motivation and problem framing</li>
+                    <li>Study design and stimulus set</li>
+                    <li>Participant task and questions</li>
+                    <li>Preliminary findings and discussion</li>
+                    <li>Future work</li>
                 </ul>
             </section>
         </main>
@@ -1463,6 +1468,16 @@
 
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
+        const continueButton = document.getElementById('continue-study');
+        const legacyTemplate = document.getElementById('legacy-index-html');
+
+        continueButton.addEventListener('click', () => {
+            if (!legacyTemplate || !legacyTemplate.content) {
+                return;
+            }
+            const legacyMarkup = legacyTemplate.innerHTML;
+            document.documentElement.innerHTML = legacyMarkup;
+        });
     </script>
 </body>
 </html>
