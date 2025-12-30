@@ -1,4 +1,335 @@
 <!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunum | Personality Perception on Neural Rendered Videos</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f1eb;
+            --ink: #1f1a16;
+            --muted: #5e574f;
+            --accent: #d25b3e;
+            --accent-dark: #a3432e;
+            --card: #fffaf4;
+            --line: rgba(31, 26, 22, 0.12);
+            --shadow: 0 20px 60px rgba(31, 26, 22, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Space Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: var(--ink);
+            background: radial-gradient(circle at 15% 20%, #f9efe1, transparent 55%),
+                radial-gradient(circle at 80% 0%, #f2d7c2, transparent 45%),
+                radial-gradient(circle at 90% 90%, #f3e3d4, transparent 50%),
+                var(--bg);
+            min-height: 100vh;
+        }
+
+        .page {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 999px;
+            opacity: 0.45;
+            filter: blur(0.5px);
+            animation: drift 14s ease-in-out infinite;
+        }
+
+        .shape-one {
+            width: 240px;
+            height: 240px;
+            background: #f0c9b0;
+            top: -60px;
+            left: -60px;
+        }
+
+        .shape-two {
+            width: 180px;
+            height: 180px;
+            background: #f7e0cf;
+            right: 8%;
+            top: 120px;
+            animation-delay: 2s;
+        }
+
+        .shape-three {
+            width: 280px;
+            height: 280px;
+            background: #ecd0b8;
+            right: -120px;
+            bottom: -120px;
+            animation-delay: 4s;
+        }
+
+        @keyframes drift {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(20px) rotate(4deg); }
+        }
+
+        header {
+            padding: 60px 8vw 30px;
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tag {
+            display: inline-flex;
+            gap: 10px;
+            align-items: center;
+            padding: 8px 16px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            font-size: 0.95rem;
+            background: rgba(255, 250, 244, 0.9);
+            margin-bottom: 26px;
+        }
+
+        .tag span {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        h1 {
+            font-family: "DM Serif Display", "Times New Roman", serif;
+            font-size: clamp(2.6rem, 4vw, 4.1rem);
+            line-height: 1.05;
+            letter-spacing: 0.5px;
+            margin-bottom: 18px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--muted);
+            max-width: 720px;
+            margin-bottom: 28px;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .button {
+            border: none;
+            padding: 14px 26px;
+            border-radius: 999px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .button.primary {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 14px 30px rgba(210, 91, 62, 0.3);
+        }
+
+        .button.primary:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+        }
+
+        .button.secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--line);
+        }
+
+        .button.secondary:hover {
+            box-shadow: var(--shadow);
+            transform: translateY(-2px);
+        }
+
+        main {
+            padding: 0 8vw 80px;
+            display: grid;
+            gap: 28px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            position: relative;
+            z-index: 1;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            animation: fadeIn 1s ease-out;
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .list {
+            list-style: none;
+            display: grid;
+            gap: 10px;
+        }
+
+        .list li {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            font-size: 0.98rem;
+            color: var(--muted);
+        }
+
+        .list li::before {
+            content: "✦";
+            color: var(--accent);
+        }
+
+        .download-box {
+            background: #fff4e9;
+            border: 1px dashed rgba(210, 91, 62, 0.4);
+            border-radius: 20px;
+            padding: 22px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .download-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 20px;
+            font-size: 0.95rem;
+            color: var(--muted);
+        }
+
+        footer {
+            padding: 20px 8vw 40px;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 640px) {
+            header {
+                padding-top: 50px;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .button {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="floating-shape shape-one" aria-hidden="true"></div>
+        <div class="floating-shape shape-two" aria-hidden="true"></div>
+        <div class="floating-shape shape-three" aria-hidden="true"></div>
+
+        <header>
+            <div class="tag">CS-390 <span>Sunum Dosyasi</span></div>
+            <h1>Personality Perception on Neural Rendered Videos</h1>
+            <p class="subtitle">
+                Merhaba! Yarin yapacagim sunumun PDF dosyasini buradan indirebilirsiniz.
+                Proje, farkli yuz ifadeleri ve bas pozisyonlarinin kisilik algisini nasil etkiledigini inceliyor.
+            </p>
+            <div class="hero-actions">
+                <a class="button primary" href="CS-390%20Melike%20Kara%20(1).pdf" download>
+                    PDF indir
+                </a>
+                <a class="button secondary" href="CS-390%20Melike%20Kara%20(1).pdf" target="_blank" rel="noopener">
+                    PDF goruntule
+                </a>
+                <a class="button secondary" href="https://github.com/melik3kara/Personaliy-Perception-on-Neural-Rendered-Videos" target="_blank" rel="noopener">
+                    GitHub proje
+                </a>
+            </div>
+        </header>
+
+        <main>
+            <section class="card">
+                <h2>Sunum ozeti</h2>
+                <p>
+                    Bu calisma, sinir aglari ile olusturulan konusma videolarinda kisilik ozelliklerinin
+                    algilanmasini arastiriyor. Katilimcilar, farkli duygu ve bas pozisyonlari arasinda
+                    karsilastirmalar yaparak algisal puanlar veriyor.
+                </p>
+                <ul class="list">
+                    <li>Veri: eslenik video ciftleri ve kontrol edilen ifade farklari</li>
+                    <li>Olcum: bes buyuk kisilik boyutu + dogallik algisi</li>
+                    <li>Yontem: karsilastirmali karar sorulari</li>
+                </ul>
+            </section>
+
+            <section class="card">
+                <h2>Sunum dosyasi</h2>
+                <div class="download-box">
+                    <strong>CS-390 Melike Kara (1).pdf</strong>
+                    <div class="download-meta">
+                        <span>Format: PDF</span>
+                        <span>Kaynak: GitHub</span>
+                        <span>Durum: Indirmeye hazir</span>
+                    </div>
+                    <div class="hero-actions">
+                        <a class="button primary" href="CS-390%20Melike%20Kara%20(1).pdf" download>
+                            Tek tikla indir
+                        </a>
+                        <a class="button secondary" href="CS-390%20Melike%20Kara%20(1).pdf" target="_blank" rel="noopener">
+                            Yeni sekmede ac
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Sunum akisi</h2>
+                <ul class="list">
+                    <li>Motivasyon ve problem tanimi</li>
+                    <li>Deney tasarimi ve stimuli seti</li>
+                    <li>Katilimci gorevi ve sorular</li>
+                    <li>On bulgular ve tartisma</li>
+                    <li>Gelecek calismalar</li>
+                </ul>
+            </section>
+        </main>
+
+        <footer>
+            <span>&copy; <span id="year"></span> Melike Kara</span>
+        </footer>
+    </div>
+
+    <template id="legacy-index-html">
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1125,6 +1456,13 @@
             // Pre-fill Prolific ID if available
             responses.prolificId = getProlificID();
         });
+    </script>
+</body>
+</html>
+    </template>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
     </script>
 </body>
 </html>
